@@ -1,0 +1,131 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ name }} | Profile</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+  <header class="topbar">
+    <span class="logo">f</span>
+    <input class="search" type="search" placeholder="Search" aria-label="Search">
+  </header>
+
+  {% if messages %}
+  <div class="toasts">
+    {% for message in messages %}
+      <div class="toast {{ message.tags }}" role="status">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <section class="profile-head">
+    <div class="cover"></div>
+
+    <div class="identity">
+      <form id="avatar-form" class="avatar-wrap" method="post" action="{% url 'upload' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <img id="avatar-img" class="avatar" alt="{{ name }}"
+             {% if avatar_url %}src="{{ avatar_url }}"{% else %}hidden{% endif %}>
+        <div id="avatar-fallback" class="avatar avatar-fallback"
+             {% if avatar_url %}hidden{% endif %}>{{ name|slice:":1"|upper }}</div>
+
+        <label class="camera" for="photo" title="Update profile picture" aria-label="Update profile picture">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path fill="currentColor" d="M9 3 7.2 5H4a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-3.2L15 3H9zm3 14a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-2a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z"/>
+          </svg>
+        </label>
+        <input id="photo" name="photo" type="file" accept="image/*" hidden>
+      </form>
+
+      <div class="who">
+        <h1>{{ name }}</h1>
+        <p class="muted">67 friends</p>
+      </div>
+
+      <div class="head-actions">
+        <button class="btn btn-primary" type="button">+ Add to story</button>
+        <button class="btn btn-gray" type="button">Edit profile</button>
+      </div>
+    </div>
+
+    
+    <div id="save-bar" class="save-bar" hidden>
+      <span>Preview of your new profile picture</span>
+      <button id="cancel-btn" class="btn btn-gray" type="button">Cancel</button>
+      <button class="btn btn-primary" type="submit" form="avatar-form">Save</button>
+    </div>
+
+    <nav class="tabs" aria-label="Profile sections">
+      <a class="active" href="#">Posts</a>
+      <a href="#">About</a>
+      <a href="#">Friends</a>
+      <a href="#">Photos</a>
+      <a href="#">Videos</a>
+    </nav>
+  </section>
+
+  <main class="layout">
+    <aside class="card intro">
+      <h2>Intro</h2>
+      <ul>
+        <li>Studies at <strong>Dalubhasaan ng Lungsod ng Lucena</strong></li>
+        <li>Lives in <strong>Lucena City</strong></li>
+        <li>From <strong>Lucena City</strong></li>
+      </ul>
+    </aside>
+
+    <section class="feed">
+      <div class="card composer">
+        {% if avatar_url %}
+          <img class="mini" src="{{ avatar_url }}" alt="">
+        {% else %}
+          <div class="mini avatar-fallback">{{ name|slice:":1"|upper }}</div>
+        {% endif %}
+        <div class="composer-input">What's on your mind?</div>
+      </div>
+
+      <article class="card post">
+        <header>
+          {% if avatar_url %}
+            <img class="mini" src="{{ avatar_url }}" alt="">
+          {% else %}
+            <div class="mini avatar-fallback">{{ name|slice:":1"|upper }}</div>
+          {% endif %}
+          <div><strong>{{ name }}</strong><span class="muted">2 hours ago</span></div>
+        </header>
+        <p>Ang sakit nung akoy may nalaman.</p>
+        <footer><a href="#">Like</a><a href="#">Comment</a><a href="#">Share</a></footer>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const input    = document.getElementById("photo");
+    const img      = document.getElementById("avatar-img");
+    const fallback = document.getElementById("avatar-fallback");
+    const saveBar  = document.getElementById("save-bar");
+
+    
+    input.addEventListener("change", () => {
+      const file = input.files[0];
+      if (!file) return;
+      img.src = URL.createObjectURL(file);
+      img.hidden = false;
+      fallback.hidden = true;
+      saveBar.hidden = false;
+    });
+
+    document.getElementById("cancel-btn").addEventListener("click", () => {
+      input.value = "";
+      location.reload();
+    });
+  </script>
+</body>
+</html>
